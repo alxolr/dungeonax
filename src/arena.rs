@@ -1,15 +1,21 @@
 use crate::character::Character;
 
+#[derive(Debug, PartialEq)]
+pub enum ArenaCorner {
+    Left,
+    Right,
+}
+
 #[derive(Debug)]
-pub struct Arena {
-    left: Character,
-    right: Character,
-    pub winner: Option<Character>,
+pub struct Arena<'a> {
+    pub left: &'a mut Character,
+    pub right: &'a mut Character,
+    pub winner: Option<ArenaCorner>,
     pub round: i32,
 }
 
-impl Arena {
-    pub fn new(left_ch: Character, right_ch: Character) -> Arena {
+impl<'a> Arena<'a> {
+    pub fn new(left_ch: &'a mut Character, right_ch: &'a mut Character) -> Self {
         Arena {
             left: left_ch,
             right: right_ch,
@@ -20,20 +26,29 @@ impl Arena {
 
     pub fn fight(&mut self) {
         while self.left.health >= 0 && self.right.health >= 0 {
-            self.right.receive_damage(self.left.attack);
-            self.left.receive_damage(self.right.attack);
             self.round += 1;
+            println!("Round {}", &self.round);
+
+            self.right.receive_damage(self.left.attack());
+            println!(
+                "{} has {} health left",
+                &self.right.name, &self.right.health
+            );
+
+            self.left.receive_damage(self.right.attack());
+            println!("{} has {} health left", &self.left.name, &self.left.health);
+            println!("\n");
 
             if self.left.health < 0 && self.right.health < 0 {
                 self.winner = if self.left.health > self.right.health {
-                    Some(self.left.clone())
+                    Some(ArenaCorner::Left)
                 } else {
-                    Some(self.right.clone())
+                    Some(ArenaCorner::Right)
                 }
             } else if self.left.health <= 0 {
-                self.winner = Some(self.right.clone());
+                self.winner = Some(ArenaCorner::Right);
             } else {
-                self.winner = Some(self.left.clone());
+                self.winner = Some(ArenaCorner::Left);
             }
         }
     }
@@ -43,23 +58,21 @@ impl Arena {
 mod tests {
     use super::*;
     #[test]
-    fn has_new() {
-        let left_ch = Character::new("Any".to_string(), 100, 50);
-        let right_ch = Character::new("Job".to_string(), 300, 50);
-        let arena = Arena::new(left_ch, right_ch);
+    fn starts_at_round_zero() {
+        let mut left_ch = Character::new("Any".to_string(), 100, (50, 60));
+        let mut right_ch = Character::new("Job".to_string(), 300, (50, 70));
+        let arena = Arena::new(&mut left_ch, &mut right_ch);
 
         assert_eq!(arena.round, 0);
     }
 
     #[test]
     fn fight_until_death() {
-        let left_ch = Character::new("Any".to_string(), 100, 50);
-        let right_ch = Character::new("Job".to_string(), 300, 50);
-        let mut arena = Arena::new(left_ch, right_ch.clone());
-        arena.fight();
+        let mut left_ch = Character::new("Any".to_string(), 100, (50, 60));
+        let mut right_ch = Character::new("Job".to_string(), 300, (50, 100));
+        let mut arena = Arena::new(&mut left_ch, &mut right_ch);
+        &mut arena.fight();
 
-        println!("{:?} Arena", arena);
-
-        assert_eq!(arena.winner.unwrap(), right_ch);
+        println!("{:?}", arena.winner)
     }
 }
