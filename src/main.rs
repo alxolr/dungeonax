@@ -7,7 +7,7 @@ use crate::character::Character;
 fn main() {
     println!("Hello, world!");
     let mut johny = Character::new("Johny Cage".to_string(), 100, (10, 15));
-    let mut shan = Character::new("Shan Tsung".to_string(), 40, (30, 45));
+    let mut shan = Character::new("Shan Tsung".to_string(), 40, (10, 45));
 
     let mut arena = Arena::new(&mut johny, &mut shan);
     arena.fight();
@@ -19,11 +19,4 @@ fn main() {
         },
         None => println!("No one wone"),
     }
-
-    // println!("{:?}", arena);
-
-    // match &mut arena.winner {
-    //     Some(x) => println!("Arena was winned by {}", x.name),
-    //     None => println!("Somewthing went not as expected"),
-    // }
 }

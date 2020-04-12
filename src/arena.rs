@@ -25,18 +25,18 @@ impl<'a> Arena<'a> {
     }
 
     pub fn fight(&mut self) {
+        self.left.info().unwrap().print_stdout();
+        self.right.info().unwrap().print_stdout();
+
         while self.left.health >= 0 && self.right.health >= 0 {
             self.round += 1;
-            println!("Round {}", &self.round);
+            println!("Round {}\n", &self.round);
 
             self.right.receive_damage(self.left.attack());
-            println!(
-                "{} has {} health left",
-                &self.right.name, &self.right.health
-            );
+            self.right.info().unwrap().print_stdout();
 
             self.left.receive_damage(self.right.attack());
-            println!("{} has {} health left", &self.left.name, &self.left.health);
+            self.left.info().unwrap().print_stdout();
             println!("\n");
 
             if self.left.health < 0 && self.right.health < 0 {

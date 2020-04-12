@@ -1,5 +1,7 @@
+extern crate cli_table;
 extern crate rand;
 
+use cli_table::{format, Cell, Error, Row, Table};
 use rand::{thread_rng, Rng};
 use std::cmp::PartialEq;
 
@@ -30,6 +32,37 @@ impl Character {
         println!("{} attacked for {} damage", &self.name, &attack_dmg);
 
         attack_dmg
+    }
+
+    pub fn info(&self) -> Result<Table, Error> {
+        let justify_right = format::CellFormat::builder()
+            .justify(format::Justify::Right)
+            .build();
+
+        let bold = format::CellFormat::builder().bold(true).build();
+
+        let table = Table::new(
+            vec![
+                Row::new(vec![
+                    Cell::new(&format!("Character"), bold),
+                    Cell::new(&self.name, bold),
+                ]),
+                Row::new(vec![
+                    Cell::new("Health", Default::default()),
+                    Cell::new(&self.health, justify_right),
+                ]),
+                Row::new(vec![
+                    Cell::new("Damage", Default::default()),
+                    Cell::new(
+                        &format!("({} - {})", &self.attack.0, &self.attack.1),
+                        justify_right,
+                    ),
+                ]),
+            ],
+            Default::default(),
+        );
+
+        table
     }
 }
 
